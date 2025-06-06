@@ -140,6 +140,28 @@
       if (bannerRejectBtn) {
         bannerRejectBtn.addEventListener('click', () => setTimeout(() => location.reload(), 1000));
       }
+        // Show or hide YouTube iframe based on consent to group C0004
+        try {
+        var a = document.getElementsByClassName("gdpr-info-box")[0];
+        if (a) {
+          if (window.OnetrustActiveGroups.includes(",C0004,")) {
+            a.style.display = "flex";
+            a.style.flexDirection = "column";
+          } else {
+            a.style.display = "none";
+          }
+        }
+        var v = document.querySelector('#youtubeVideoDiv iframe');
+        if (v) {
+          if (window.OnetrustActiveGroups.includes(",C0004,")) {
+            v.style.display = "block";
+          } else {
+            v.style.display = "none";
+          }
+        }
+        } catch (e) {
+        console.warn("OneTrust YouTube consent logic failed:", e);
+        }
     }
     </script>
     <!-- OneTrust Cookies Consent Notice end -->
