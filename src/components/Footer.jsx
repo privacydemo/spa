@@ -13,9 +13,15 @@ const Footer = () => {
           <div>
             <h4>Quick Links</h4>
             <ul>
-              <Link to={"/"}>Home</Link>
-              <Link to={"/appointment"}>Appointment</Link>
-              <Link to={"/about"}>About Us</Link>
+              <li>
+                <Link to={"/"}>Home</Link>
+              </li>
+              <li>
+                <Link to={"/appointment"}>Appointment</Link>
+              </li>
+              <li>
+                <Link to={"/about"}>About Us</Link>
+              </li>
             </ul>
           </div>
           <div>
@@ -23,7 +29,7 @@ const Footer = () => {
             <p>Aidan Morrissey</p>
           </div>
           <div>
-            <a class="optanon-toggle-display"><h4>Your Privacy Choices</h4></a>
+            <a className="optanon-toggle-display"><h4>Your Privacy Choices</h4></a>
           </div>
         </div>
         <div className="copyright">
