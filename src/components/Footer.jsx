@@ -1,10 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaLocationDot, FaPhone } from "react-icons/fa6";
-import { MdEmail } from "react-icons/md";
-import { FaGithub, FaInstagramSquare } from "react-icons/fa";
-import { RxLinkedinLogo } from "react-icons/rx";
-import { IoGlobeOutline } from "react-icons/io5";
 
 const Footer = () => {
   return (
