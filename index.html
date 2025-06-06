@@ -1,6 +1,217 @@
 <!doctype html>
 <html lang="en">
   <head>
+  
+    <!-- OneTrust Cookies Consent Notice start for privacy-demo.com -->
+    <script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"  type="text/javascript" charset="UTF-8" data-domain-script="019017c0-65b9-7f7b-9047-1ce80833de1e" ></script>
+    <script type="text/javascript">
+    //The script below is to replace “OptanonWrapper()” in your instance of the OneTrust cookie script
+    // function to pull cookie value
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+    function OptanonWrapper() {
+      // Get initial OnetrustActiveGroups ids
+      if(typeof OptanonWrapperCount == "undefined"){
+      otGetInitialGrps();
+      }
+      
+      //Delete cookies
+      otDeleteCookie(otIniGrps);
+      
+      // Assign OnetrustActiveGroups to custom variable
+      function otGetInitialGrps(){
+      OptanonWrapperCount = '';
+      otIniGrps =  OnetrustActiveGroups;
+      // console.log("otGetInitialGrps", otIniGrps)
+      }
+      
+      function otDeleteCookie(iniOptGrpId)
+      {
+      var otDomainGrps = JSON.parse(JSON.stringify(Optanon.GetDomainData().Groups));
+      var otDeletedGrpIds = otGetInactiveId(iniOptGrpId, OnetrustActiveGroups);
+      if(otDeletedGrpIds.length != 0 && otDomainGrps.length !=0){
+        for(var i=0; i < otDomainGrps.length; i++){
+        //Check if CustomGroupId matches
+          if(otDomainGrps[i]['CustomGroupId'] != '' && otDeletedGrpIds.includes(otDomainGrps[i]['CustomGroupId'])){
+          for(var j=0; j < otDomainGrps[i]['Cookies'].length; j++){
+          // console.log("otDeleteCookie",otDomainGrps[i]['Cookies'][j]['Name'])
+          //Delete cookie
+          eraseCookie(otDomainGrps[i]['Cookies'][j]['Name']);
+          }
+        }
+      
+        //Check if Hostid matches
+        if(otDomainGrps[i]['Hosts'].length != 0){
+          for(var j=0; j < otDomainGrps[i]['Hosts'].length; j++){
+          //Check if HostId presents in the deleted list and cookie array is not blank
+          if(otDeletedGrpIds.includes(otDomainGrps[i]['Hosts'][j]['HostId']) && otDomainGrps[i]['Hosts'][j]['Cookies'].length !=0){
+            for(var k=0; k < otDomainGrps[i]['Hosts'][j]['Cookies'].length; k++){
+            //Delete cookie
+            eraseCookie(otDomainGrps[i]['Hosts'][j]['Cookies'][k]['Name']);
+            }
+          }
+          }
+        }
+      
+        }
+      }
+      otGetInitialGrps(); //Reassign new group ids
+      }
+      
+      //Get inactive ids
+      function otGetInactiveId(customIniId, otActiveGrp){
+      //Initial OnetrustActiveGroups
+      // console.log("otGetInactiveId",customIniId)
+      customIniId = customIniId.split(",");
+      customIniId = customIniId.filter(Boolean);
+      
+      //After action OnetrustActiveGroups
+      otActiveGrp = otActiveGrp.split(",");
+      otActiveGrp = otActiveGrp.filter(Boolean);
+      
+      var result=[];
+      for (var i=0; i < customIniId.length; i++){
+        if ( otActiveGrp.indexOf(customIniId[i]) <= -1 ){
+        result.push(customIniId[i]);
+        }
+      }
+      return result;
+      }
+      
+      function eraseCookie(name) {
+        var hostname = window.location.hostname;
+        var domainParts = hostname.split('.');
+        var pathArray = window.location.pathname.split('/');
+
+        // Build list of domains to try
+        var domains = [];
+
+        // Start full hostname
+        domains.push(hostname);
+
+        // If hostname has subdomains, loop and collect all levels
+        if (domainParts.length > 2) {
+            for (var i = 1; i <= domainParts.length - 2; i++) {
+                domains.push(domainParts.slice(i).join('.'));
+            }
+        }
+
+        // Always add base domain
+        domains.push(domainParts.slice(-2).join('.'));
+
+        // Also add with leading dot versions
+        var additionalDomains = [];
+        for (var i = 0; i < domains.length; i++) {
+            if (domains[i].charAt(0) !== '.') {
+                additionalDomains.push('.' + domains[i]);
+            }
+        }
+        domains = domains.concat(additionalDomains);
+
+        // Remove duplicates (optional)
+        domains = domains.filter(function(value, index, self) {
+            return self.indexOf(value) === index;
+        });
+
+        // Log domains we're deleting from (for debugging)
+        console.log("Deleting cookie from domains: ", domains);
+
+        // Delete from all domain variants and all path levels
+        for (var d = 0; d < domains.length; d++) {
+            var domainName = domains[d];
+
+            // Start with root path
+            document.cookie = name + '=; Max-Age=-99999999; Path=/; Domain=' + domainName + ';';
+            document.cookie = name + '=; Max-Age=-99999999; Path=/;';
+
+            // Loop through path hierarchy
+            for (var i = 0; i < pathArray.length; i++) {
+                if (pathArray[i]) {
+                    var currentPath = pathArray.slice(0, i + 1).join('/');
+
+                    document.cookie = name + '=; Max-Age=-99999999; Path=/' + currentPath + '; Domain=' + domainName + ';';
+                    document.cookie = name + '=; Max-Age=-99999999; Path=/' + currentPath + ';';
+
+                    // Optional: handle trailing slash
+                    document.cookie = name + '=; Max-Age=-99999999; Path=/' + currentPath + '/; Domain=' + domainName + ';';
+                    document.cookie = name + '=; Max-Age=-99999999; Path=/' + currentPath + '/;';
+                }
+            }
+        }
+
+        // Also remove local storage
+        try {
+            localStorage.removeItem(name);
+        } catch (e) {
+            console.warn('LocalStorage remove error:', e);
+        }
+
+        console.log("Attempted to delete cookie: ", name);
+    }
+      
+      console.log("OptanonWrapper called");
+      var OABCcookieName = "OptanonAlertBoxClosed";
+      var bannerAcceptBtn = document.getElementById("onetrust-accept-btn-handler");
+      var bannerRejectBtn = document.getElementById("onetrust-reject-all-handler");
+      var pcAllowAllBtn = document.getElementById("accept-recommended-btn-handler");
+      var pcSaveBtn = document.getElementsByClassName("save-preference-btn-handler onetrust-close-btn-handler")[0];
+      var pcRejectBtn = document.getElementsByClassName("ot-pc-refuse-all-handler");
+      var OABCcookie = getCookie(OABCcookieName);
+      
+        
+      // IF logic needed here because ot-banner-sdk DIV is not injected on page loads if banner is not exposed
+      if (!OABCcookie && bannerAcceptBtn) {
+      bannerAcceptBtn.addEventListener('click', function() {
+        console.log("Allowed all via Banner");
+        location.reload();
+      });
+      }
+      if (pcAllowAllBtn) {
+      pcAllowAllBtn.addEventListener('click', function() {
+        console.log("Allowed all via Preference Center");
+        location.reload();
+      });
+      }
+      if(pcSaveBtn){
+      pcSaveBtn.addEventListener('click', function() {
+        setTimeout(function() {
+        console.log("Set custom settings via Preference Center");
+        location.reload();
+      }, 1000) //quick timeout so that the consent receipt can be sent and the cookie can be updated
+      });
+      }
+      if(pcRejectBtn){
+      pcRejectBtn.addEventListener('click', function() {
+        setTimeout(function() {
+        console.log("Rejected all via Preference Center");
+        location.reload();
+      }, 1000) //quick timeout so that the consent receipt can be sent and the cookie can be updated
+      });
+      }
+      if(bannerRejectBtn){
+      bannerRejectBtn.addEventListener('click', function() {
+        setTimeout(function() {
+        console.log("Rejected all via Preference Center");
+        location.reload();
+      }, 1000) //quick timeout so that the consent receipt can be sent and the cookie can be updated
+      });
+      }
+      
+    }
+    </script>
+    <!-- OneTrust Cookies Consent Notice end for privacy-demo.com -->
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-K7RZMT5H');</script>
+  <!-- End Google Tag Manager -->
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Life Care Hospital</title>
