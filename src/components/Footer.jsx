@@ -25,52 +25,10 @@ const Footer = () => {
           </div>
           <div>
             <h4>Developed by</h4>
-            <p>Muhammad Fairooz</p>
-            <div className="social-icons">
-              <a
-                href="https://fairooz2150.github.io/Fairooz/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <IoGlobeOutline />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/muhammad-fairooz-0b1136268/?trk=public-profile-join-page"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <RxLinkedinLogo />
-              </a>
-              <a
-                href="https://github.com/Fairooz2150"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaGithub />
-              </a>
-              <a
-                href="https://www.instagram.com/marsh__mell_o/?igsh=MWhwZmI5NDRsMWoxMQ%3D%3D"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaInstagramSquare />
-              </a>
-            </div>
+            <p>Aidan Morrissey</p>
           </div>
           <div>
-            <h4>Contact</h4>
-            <div>
-              <FaPhone />
-              <span>999-999-9999</span>
-            </div>
-            <div>
-              <MdEmail />
-              <span>lifecare@gmail.com</span>
-            </div>
-            <div>
-            <FaLocationDot/>
-            <span>Kerala, India</span>
-            </div>
+            <a class="optanon-toggle-display"><h4>Your Privacy Choices</h4></a>
           </div>
         </div>
         <div className="copyright">
