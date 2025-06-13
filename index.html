@@ -34,7 +34,21 @@
     <!-- OneTrust Cookies Consent Notice start for privacy-demo.com -->
     <script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="019017c0-65b9-7f7b-9047-1ce80833de1e" ></script>
     <script type="text/javascript">
-    function OptanonWrapper() { }
+    function OptanonWrapper() {
+      const groups = (window.OnetrustActiveGroups || '').split(',');
+        gtag('consent', 'default', { 
+            ad_storage: groups.includes('C0004') ? 'grated' : 'denied', 
+            analytics_storage: groups.includes('C0004') ? 'grated' : 'denied', 
+            functionality_storage: groups.includes('C0004') ? 'grated' : 'denied', 
+            personalization_storage: groups.includes('C0004') ? 'grated' : 'denied', 
+            security_storage: groups.includes('C0004') ? 'grated' : 'denied',  
+            ad_user_data: groups.includes('C0004') ? 'grated' : 'denied',
+            ad_personalization: groups.includes('C0004') ? 'grated' : 'denied', 
+      }); 
+
+            window.dataLayer.push({event: 'onetrust_consent_updated'});
+
+    }
     </script>
     <!-- OneTrust Cookies Consent Notice end for privacy-demo.com -->
 
@@ -60,6 +74,7 @@
     <link rel="stylesheet" crossorigin href="/assets/index-CcZ00KTI.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div>
+
   </body>
 </html>
