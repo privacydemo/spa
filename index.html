@@ -34,7 +34,67 @@
     <!-- OneTrust Cookies Consent Notice start for privacy-demo.com -->
     <script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="019017c0-65b9-7f7b-9047-1ce80833de1e" ></script>
     <script type="text/javascript">
-    function OptanonWrapper() {}
+    function OptanonWrapper() {
+       function OptanonWrapper() {
+   // Get groups removed by user (consent withdrawn)
+   var initialGroups = window.otIniGrps || "";
+   var activeGroups = window.OnetrustActiveGroups || "";
+   var otDomainGrps = Optanon.GetDomainData().Groups;
+   var otDeletedGrpIds = otGetInactiveId(initialGroups, activeGroups);
+   // Delete cookies tied to those groups
+   otDeletedGrpIds.forEach(groupId => {
+     otDomainGrps.forEach(group => {
+       if (group.CustomGroupId === groupId) {
+         (group.Cookies || []).forEach(cookie => eraseCookie(cookie.Name));
+       }
+       (group.Hosts || []).forEach(host => {
+         if (host.HostId === groupId) {
+           (host.Cookies || []).forEach(cookie => eraseCookie(cookie.Name));
+         }
+       });
+     });
+   });
+   // Store updated groups for next comparison
+   window.otIniGrps = activeGroups;
+
+   console.log('Consent updated:', activeGroups);
+ }
+ function otGetInactiveId(initial, active) {
+   const initialArr = initial.split(',').filter(Boolean);
+   const activeArr = active.split(',').filter(Boolean);
+   return initialArr.filter(id => !activeArr.includes(id));
+ }
+ function eraseCookie(name) {
+   const hostname = window.location.hostname;
+   const domainParts = hostname.split('.');
+   const pathArray = window.location.pathname.split('/');
+   let domains = [];
+   // Collect domain variants
+   domains.push(hostname);
+   if (domainParts.length > 2) {
+     for (let i = 1; i <= domainParts.length - 2; i++) {
+       domains.push(domainParts.slice(i).join('.'));
+     }
+   }
+   domains.push(domainParts.slice(-2).join('.'));
+   domains = domains.concat(domains.map(d => (d.startsWith('.') ? d : '.' + d)));
+   domains = [...new Set(domains)];
+   // Delete across domain + paths
+   for (const domain of domains) {
+     document.cookie = `${name}=; Max-Age=0; Path=/; Domain=${domain};`;
+     document.cookie = `${name}=; Max-Age=0; Path=/;`;
+     for (let i = 0; i < pathArray.length; i++) {
+       const currentPath = '/' + pathArray.slice(0, i + 1).join('/');
+       document.cookie = `${name}=; Max-Age=0; Path=${currentPath}; Domain=${domain};`;
+       document.cookie = `${name}=; Max-Age=0; Path=${currentPath};`;
+     }
+   }
+   try {
+     localStorage.removeItem(name);
+   } catch (e) {
+     console.warn('LocalStorage remove error:', e);
+   }
+    }
     </script>
     <!-- OneTrust Cookies Consent Notice end for privacy-demo.com -->
 
