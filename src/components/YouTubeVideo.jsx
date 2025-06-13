@@ -16,7 +16,7 @@ const YouTubeVideo = () => {
                     className="optanon-category-C0004 embed-responsive-item"
                     width="560"
                     height="315"
-                    src="https://www.youtube-nocookie.com/embed/ugn_qmQ0NFo?si=3F3hUaouoOzUCp2e"
+                    src="https://www.youtube-nocookie.com/embed/3YxaaGgTQYM?si=0Tq4NitaSWuh20MQ"
                     title="YouTube video player"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
