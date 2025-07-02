@@ -1,63 +1,180 @@
 <!doctype html>
 <html lang="en">
   <head>
+  
+    <!-- OneTrust Cookies Consent Notice start -->
+    <script
+    src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"
+    type="text/javascript"
+    charset="UTF-8"
+    data-domain-script="019017c0-65b9-7f7b-9047-1ce80833de1e">
+    </script>
+    <script type="text/javascript">
+    // Utility to check if a cookie exists
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      return parts.length === 2;
+    }
+    // Refresh logic: re-show banner if consent not yet given
+    function reloadOTBanner() {
+      if (!getCookie("OptanonAlertBoxClosed")) {
+        var otConsentSdk = document.getElementById("onetrust-consent-sdk");
+        if (otConsentSdk) otConsentSdk.remove();
+        if (window.OneTrust != null) {
+          OneTrust.Init();
+          setTimeout(function () {
+            OneTrust.LoadBanner();
+            var toggleDisplay = document.getElementsByClassName("ot-sdk-show-settings");
+            for (var i = 0; i < toggleDisplay.length; i++) {
+              toggleDisplay[i].onclick = function (event) {
+                event.stopImmediatePropagation();
+                window.OneTrust.ToggleInfoDisplay();
+              };
+            }
+          }, 1000);
+        }
+      }
+    }
+    // Full OneTrust wrapper
+    function OptanonWrapper() {
+      if (typeof OptanonWrapperCount === "undefined") {
+        otGetInitialGrps();
+      }
+      otDeleteCookie(otIniGrps);
+      function otGetInitialGrps() {
+        OptanonWrapperCount = '';
+        otIniGrps = OnetrustActiveGroups;
+      }
+      function otDeleteCookie(iniOptGrpId) {
+        var otDomainGrps = JSON.parse(JSON.stringify(Optanon.GetDomainData().Groups));
+        var otDeletedGrpIds = otGetInactiveId(iniOptGrpId, OnetrustActiveGroups);
+        if (otDeletedGrpIds.length !== 0 && otDomainGrps.length !== 0) {
+          for (var i = 0; i < otDomainGrps.length; i++) {
+            if (otDomainGrps[i]['CustomGroupId'] &&
+                otDeletedGrpIds.includes(otDomainGrps[i]['CustomGroupId'])) {
+              for (var j = 0; j < otDomainGrps[i]['Cookies'].length; j++) {
+                eraseCookie(otDomainGrps[i]['Cookies'][j]['Name']);
+              }
+            }
+            if (otDomainGrps[i]['Hosts'].length !== 0) {
+              for (var j = 0; j < otDomainGrps[i]['Hosts'].length; j++) {
+                if (otDeletedGrpIds.includes(otDomainGrps[i]['Hosts'][j]['HostId']) &&
+                    otDomainGrps[i]['Hosts'][j]['Cookies'].length !== 0) {
+                  for (var k = 0; k < otDomainGrps[i]['Hosts'][j]['Cookies'].length; k++) {
+                    eraseCookie(otDomainGrps[i]['Hosts'][j]['Cookies'][k]['Name']);
+                  }
+                }
+              }
+            }
+          }
+        }
+        otGetInitialGrps(); // Refresh group data
+      }
+      function otGetInactiveId(customIniId, otActiveGrp) {
+        customIniId = customIniId.split(",").filter(Boolean);
+        otActiveGrp = otActiveGrp.split(",").filter(Boolean);
+        return customIniId.filter(id => !otActiveGrp.includes(id));
+      }
+      function eraseCookie(name) {
+        var hostname = window.location.hostname;
+        var domainParts = hostname.split('.');
+        var pathArray = window.location.pathname.split('/');
+        var domains = [hostname];
+        if (domainParts.length > 2) {
+          for (var i = 1; i <= domainParts.length - 2; i++) {
+            domains.push(domainParts.slice(i).join('.'));
+          }
+        }
+        domains.push(domainParts.slice(-2).join('.'));
+        domains = domains.concat(domains.map(d => d.startsWith('.') ? d : '.' + d));
+        domains = [...new Set(domains)];
+        for (var d = 0; d < domains.length; d++) {
+          var domainName = domains[d];
+          document.cookie = name + '=; Max-Age=-99999999; Path=/; Domain=' + domainName + ';';
+          document.cookie = name + '=; Max-Age=-99999999; Path=/;';
+          for (var i = 0; i < pathArray.length; i++) {
+            if (pathArray[i]) {
+              var currentPath = pathArray.slice(0, i + 1).join('/');
+              document.cookie = name + '=; Max-Age=-99999999; Path=/' + currentPath + '; Domain=' + domainName + ';';
+              document.cookie = name + '=; Max-Age=-99999999; Path=/' + currentPath + ';';
+              document.cookie = name + '=; Max-Age=-99999999; Path=/' + currentPath + '/; Domain=' + domainName + ';';
+              document.cookie = name + '=; Max-Age=-99999999; Path=/' + currentPath + '/;';
+            }
+          }
+        }
+        try {
+          localStorage.removeItem(name);
+        } catch (e) {
+          console.warn('LocalStorage remove error:', e);
+        }
+      }
+      // Attach refresh logic to relevant buttons
+      const OABCcookieName = "OptanonAlertBoxClosed";
+      const bannerAcceptBtn = document.getElementById("onetrust-accept-btn-handler");
+      const bannerRejectBtn = document.getElementById("onetrust-reject-all-handler");
+      const pcAllowAllBtn = document.getElementById("accept-recommended-btn-handler");
+      const pcSaveBtn = document.getElementsByClassName("save-preference-btn-handler onetrust-close-btn-handler")[0];
+      const pcRejectBtn = document.getElementsByClassName("ot-pc-refuse-all-handler")[0];
+      if (!getCookie(OABCcookieName) && bannerAcceptBtn) {
+        bannerAcceptBtn.addEventListener('click', () => location.reload());
+      }
+      if (pcAllowAllBtn) {
+        pcAllowAllBtn.addEventListener('click', () => location.reload());
+      }
+      if (pcSaveBtn) {
+        pcSaveBtn.addEventListener('click', () => setTimeout(() => location.reload(), 1000));
+      }
+      if (pcRejectBtn) {
+        pcRejectBtn.addEventListener('click', () => setTimeout(() => location.reload(), 1000));
+      }
+      if (bannerRejectBtn) {
+        bannerRejectBtn.addEventListener('click', () => setTimeout(() => location.reload(), 1000));
+      }
+    }
+    </script>
+    <!-- OneTrust Cookies Consent Notice end -->
 
-    <script> 
-      // Define dataLayer and the gtag function. 
-      window.dataLayer = window.dataLayer || []; 
-      function gtag(){dataLayer.push(arguments);} 
-      
-      gtag('set' , 'developer_id.dYWJhMj', true);
-    
-      // Default ad_storage to 'denied'. 
-      gtag('consent', 'default', { 
-            ad_storage: "denied", 
-            analytics_storage: "denied", 
-            functionality_storage: "denied", 
-            personalization_storage: "denied", 
-            security_storage: "denied",  
-            ad_user_data: "denied",
-            ad_personalization: "denied", 
-    'wait_for_update': 500 
-    
-      }); 
+    <script type="text/plain" class="optanon-category-C0004">
+      document.cookie = "DavidIsWatching=BetterWatchYoSelf; path=/; domain=.privacy-demo.com; max-age=31536000";
+    </script>
+
+    <script type="text/plain" class="optanon-category-C0004">
+      document.cookie = "HeWillTellSanta=DontYouWantPresenst; path=/; domain=.privacy-demo.com; max-age=31536000";
+    </script>
+
+    <script type="text/plain" class="optanon-category-C0004">
+      document.cookie = "TrackingYourEveryMove=YouCantHide; path=/; domain=.privacy-demo.com; max-age=31536000";
     </script>
 
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-K7RZMT5H');</script>
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-K7RZMT5H');</script>
     <!-- End Google Tag Manager -->
-
-    <!-- OneTrust Cookies Consent Notice start for privacy-demo.com -->
-    <script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="019017c0-65b9-7f7b-9047-1ce80833de1e" ></script>
-    <script type="text/javascript">
-    function OptanonWrapper() { }
-    </script>
-    <!-- OneTrust Cookies Consent Notice end for privacy-demo.com -->
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Life Care Hospital</title>
 
     <!-- Favicon for browsers -->
-    <link rel="icon" href="/spa/icons/favicon.ico" type="image/x-icon" />
-    <link rel="icon" href="/spa/icons/favicon-32x32.png" sizes="32x32" type="image/png" />
-    <link rel="icon" href="/spa/icons/favicon-16x16.png" sizes="16x16" type="image/png" />
+    <link rel="icon" href="/icons/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/icons/favicon-32x32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/icons/favicon-16x16.png" sizes="16x16" type="image/png" />
 
     <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="/spa/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 
     <!-- Android Chrome Icons -->
-    <link rel="icon" href="/spa/icons/android-chrome-192x192.png" sizes="192x192" type="image/png" />
-    <link rel="icon" href="/spa/icons/android-chrome-512x512.png" sizes="512x512" type="image/png" />
+    <link rel="icon" href="/icons/android-chrome-192x192.png" sizes="192x192" type="image/png" />
+    <link rel="icon" href="/icons/android-chrome-512x512.png" sizes="512x512" type="image/png" />
 
     <!-- Web Manifest -->
-    <link rel="manifest" href="/spa/icons/site.webmanifest" />
-    <script type="module" crossorigin src="/spa/assets/index-B2l1nT_b.js"></script>
-    <link rel="stylesheet" crossorigin href="/spa/assets/index-tVpVKimN.css">
+    <link rel="manifest" href="/icons/site.webmanifest" />
+    <script type="module" crossorigin src="/assets/index-akhf7O8X.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CcZ00KTI.css">
   </head>
   <body>
     <div id="root"></div>
