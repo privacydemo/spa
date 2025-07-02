@@ -2,164 +2,41 @@
 <html lang="en">
   <head>
 
-<!-- OneTrust will handle updating the GTM datalayer viables and fire the tags based on the custom event trigger that we will add within GTM, the event that passes the data is ‘OneTrustGroupsUpdated’. -->
-<script>
-  // Define dataLayer and the gtag function.
-  window.dataLayer = window.dataLayer || [];
-  function gtag() {
-    dataLayer.push(arguments);
-  }
+    <script> 
+      // Define dataLayer and the gtag function. 
+      window.dataLayer = window.dataLayer || []; 
+      function gtag(){dataLayer.push(arguments);} 
+      
+      gtag('set' , 'developer_id.dYWJhMj', true);
+    
+      // Default ad_storage to 'denied'. 
+      gtag('consent', 'default', { 
+            ad_storage: "denied", 
+            analytics_storage: "denied", 
+            functionality_storage: "denied", 
+            personalization_storage: "denied", 
+            security_storage: "denied",  
+            ad_user_data: "denied",
+            ad_personalization: "denied", 
+    'wait_for_update': 500 
+    
+      }); 
+    </script>
 
-  // This ID is provided by OneTrust.
-  gtag("set", "developer_id.dYWJhMj", true);
-  
-  // New combined gtag call to implement please
-  gtag("consent", "default", [
-  {
-    // California-specific rules (US-CA)
-    region: ["US-CA"],
-    ad_storage: "denied",
-    analytics_storage: "denied",
-    functionality_storage: "granted",
-    personalization_storage: "denied",
-    security_storage: "granted",
-    ad_user_data: "denied",
-    ad_personalization: "denied"
-  },
-  {
-    // Global default (for all other users)
-    ad_storage: "granted",
-    analytics_storage: "granted",
-    functionality_storage: "granted",
-    personalization_storage: "granted",
-    security_storage: "granted",
-    ad_user_data: "granted",
-    ad_personalization: "granted"
-  }
-]);
-</script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K7RZMT5H');</script>
+    <!-- End Google Tag Manager -->
 
-<!-- Google Tag Manager Script -->
-<script>
-  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-K7RZMT5H'); //
-</script>
-<!-- End Google Tag Manager -->
-
-<!-- OneTrust Cookies Consent Notice start for spa.privacy-demo.com -->
-<script
-src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js"
-data-document-language="true"
-type="text/javascript"
-charset="UTF-8"
-data-domain-script="019017c0-65b9-7f7b-9047-1ce80833de1e"
-></script>
-<script type="text/javascript">
-function OptanonWrapper() {
-  // Get groups removed by user (consent withdrawn)
-  var initialGroups = window.otIniGrps || "";
-  var activeGroups = window.OnetrustActiveGroups || "";
-  var otDomainGrps = Optanon.GetDomainData().Groups;
-  var otDeletedGrpIds = otGetInactiveId(initialGroups, activeGroups);
-  // Delete cookies tied to those groups
-  otDeletedGrpIds.forEach(groupId => {
-    otDomainGrps.forEach(group => {
-      if (group.CustomGroupId === groupId) {
-        (group.Cookies || []).forEach(cookie => eraseCookie(cookie.Name));
-      }
-      (group.Hosts || []).forEach(host => {
-        if (host.HostId === groupId) {
-          (host.Cookies || []).forEach(cookie => eraseCookie(cookie.Name));
-        }
-      });
-    });
-  });
-  // Store updated groups for next comparison
-  window.otIniGrps = activeGroups;
-  console.log('Consent updated:', activeGroups);
-
-  // Push OneTrustGroupsUpdated event to GTM
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-  event: 'OneTrustGroupsUpdated',
-  OnetrustActiveGroups: activeGroups
-});
-console.log('Pushed OneTrustGroupsUpdated event to dataLayer');
-}
-function otGetInactiveId(initial, active) {
-  const initialArr = initial.split(',').filter(Boolean);
-  const activeArr = active.split(',').filter(Boolean);
-  return initialArr.filter(id => !activeArr.includes(id));
-}
-function eraseCookie(name) {
-  const hostname = window.location.hostname;
-  const domainParts = hostname.split('.');
-  const pathArray = window.location.pathname.split('/');
-  let domains = [];
-  // Collect domain variants
-  domains.push(hostname);
-  if (domainParts.length > 2) {
-    for (let i = 1; i <= domainParts.length - 2; i++) {
-      domains.push(domainParts.slice(i).join('.'));
-    }
-  }
-  domains.push(domainParts.slice(-2).join('.'));
-  domains = domains.concat(domains.map(d => (d.startsWith('.') ? d : '.' + d)));
-  domains = [...new Set(domains)];
-  // Delete across domain + paths
-  for (const domain of domains) {
-    document.cookie = `${name}=; Max-Age=0; Path=/; Domain=${domain};`;
-    document.cookie = `${name}=; Max-Age=0; Path=/;`;
-    for (let i = 0; i < pathArray.length; i++) {
-      const currentPath = '/' + pathArray.slice(0, i + 1).join('/');
-      document.cookie = `${name}=; Max-Age=0; Path=${currentPath}; Domain=${domain};`;
-      document.cookie = `${name}=; Max-Age=0; Path=${currentPath};`;
-    }
-  }
-  try {
-    localStorage.removeItem(name);
-  } catch (e) {
-    console.warn('LocalStorage remove error:', e);
-  }
-}
-function getCookie(name) {
-      var value = "; " + document.cookie;
-      var parts = value.split("; " + name + "=");
-      if (parts.length == 2) {
-          return true;
-      }
-  }
-  function reloadOTBanner() {
-
-      var otConsentSdk = document.getElementById("onetrust-consent-sdk");
-      if (otConsentSdk) {
-          otConsentSdk.remove();
-      }
-
-      if (window.OneTrust != null) {
-          OneTrust.Init();
-
-          setTimeout(function() {
-              OneTrust.LoadBanner();
-
-              var toggleDisplay = document.getElementsByClassName(
-                  "ot-sdk-show-settings"
-              );
-
-              for (var i = 0; i < toggleDisplay.length; i++) {
-                  toggleDisplay[i].onclick = function(event) {
-                      event.stopImmediatePropagation();
-                      window.OneTrust.ToggleInfoDisplay();
-                  };
-              }
-          }, 1000);
-      }
-  }
-</script>
-<!-- OneTrust Cookies Consent Notice end for spa.privacy-demo.com. -->
+    <!-- OneTrust Cookies Consent Notice start for privacy-demo.com -->
+    <script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="019017c0-65b9-7f7b-9047-1ce80833de1e" ></script>
+    <script type="text/javascript">
+    function OptanonWrapper() { }
+    </script>
+    <!-- OneTrust Cookies Consent Notice end for privacy-demo.com -->
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
